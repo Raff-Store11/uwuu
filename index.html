@@ -1,0 +1,780 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content=
+  "width=device-width, initial-scale=1.0">
+  <title>Dark Verse</title>
+  <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: Arial,
+            sans-serif;
+            font-weight: 600;
+            background: #000;
+            color: #ccc;
+            transition: background-color 0.3s ease;
+        }
+  .topbar {
+    background: #000;            /* hitam */
+    border: 1px solid #fff;      /* pinggir putih */
+    border-radius: 12px;         /* biar agak bulat */
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 16px;
+    color: white;
+    font-size: 20px;
+  }
+  /* Consent overlay */
+  .consent-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.85);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 3000;
+  }
+  .consent-card {
+    width: 90%;
+    max-width: 420px;
+    background: #0b0b0b;
+    border: 1px solid #333;
+    border-radius: 12px;
+    padding: 18px;
+    color: #ddd;
+    text-align: left;
+    box-shadow: 0 6px 30px rgba(0,0,0,0.8);
+  }
+  .consent-card h3 { margin: 0 0 8px 0; color:#fff;}
+  .consent-row { margin-top: 12px; display:flex; gap:10px; justify-content:flex-end; }
+  .consent-btn { padding:10px 14px; border-radius:8px; border:none; cursor:pointer; font-weight:700; }
+  .consent-accept { background:#4caf50; color:#fff; }
+  .consent-decline { background:#9e9e9e; color:#000; }
+
+        /* ---------- Topbar & App (kept from original, hidden until login) ---------- */
+        
+
+        .topbar .menu {
+            font-size: 26px;
+            cursor: pointer;
+        }
+
+        .topbar .user {
+            font-size: 22px;
+        }
+
+        .profile-box {
+            background: #444;
+            margin: 20px;
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+            color: #ccc;
+            box-shadow: inset 0 0 10px #222;
+        }
+
+        .profile-box img {
+            width: 90px;
+            height: 90px;
+            border-radius: 50%;
+            margin-bottom: 10px;
+        }
+
+        .profile-box h3 {
+            margin: 5px 0;
+            font-weight: 600;
+        }
+
+        .profile-box p {
+            margin: 0;
+            font-size: 12px;
+        }
+
+        .form-box {
+            background: #111;
+            border: 1px solid #666;
+            border-radius: 10px;
+            margin: 20px;
+            padding: 20px;
+            position: relative;
+        }
+
+        .form-box label {
+            font-size: 14px;
+            display: block;
+            margin-bottom: 8px;
+        }
+
+        .form-box input {
+            width: 100%;
+            height: 50px;
+            padding: 0 12px;
+            border-radius: 8px;
+            border: 1px solid #555;
+            background: #000;
+            color: #ccc;
+            font-size: 14px;
+            margin-bottom: 20px;
+            box-sizing: border-box;
+        }
+
+        .custom-select {
+            width: 100%;
+            height: 50px;
+            background: #000;
+            border: 1px solid #555;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            padding: 0 12px;
+            cursor: pointer;
+            color: #ccc;
+            position: relative;
+            box-sizing: border-box;
+        }
+
+        .custom-select::after {
+            content: "▼";
+            position: absolute;
+            right: 12px;
+            font-size: 12px;
+            color: #ccc;
+        }
+
+        .custom-options {
+            display: none;
+            position: absolute;
+            bottom: 80px;
+            left: 20px;
+            right: 20px;
+            background: #222;
+            border-radius: 8px;
+            z-index: 10;
+            box-shadow: 0 0 10px #000;
+        }
+
+        .custom-options button {
+            width: 100%;
+            padding: 10px;
+            background: #444;
+            border: none;
+            color: #fff;
+            text-align: center;
+            font-family: Arial,
+            sans-serif;
+            font-weight: 600;
+            cursor: pointer;
+            margin: 5px 0;
+            border-radius: 6px;
+        }
+
+        .custom-options button:hover {
+            background: #666;
+        }
+
+        .send-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            width: 50%;
+            margin: 20px auto 0;
+            padding: 15px;
+            text-align: center;
+            border-radius: 10px;
+            background: #aaa;
+            color: #000;
+            font-weight: bold;
+            border: none;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        .send-btn.disabled { opacity: .45; pointer-events: none; }
+
+        .send-btn svg {
+            width: 18px;
+            height: 18px;
+            fill: #000;
+        }
+
+        .navbar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: #111;
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            padding: 10px 0;
+        }
+
+        .navbar svg {
+            width: 24px;
+            height: 24px;
+            fill: #aaa;
+            cursor: pointer;
+        }
+
+        .developer-popup {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: #000;
+            border: 1px solid #333;
+            border-radius: 5px;
+            padding: 20px;
+            z-index: 1000;
+            text-align: center;
+        }
+
+        .developer-popup p {
+            margin: 5px 0;
+        }
+
+        .menu-popup {
+            display: none;
+            position: absolute;
+            top: 50px;
+            left: 16px;
+            background: #000;
+            border: 1px solid #333;
+            border-radius: 5px;
+            padding: 10px;
+            z-index: 1000;
+        }
+
+        .menu-popup button {
+            display: block;
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 5px;
+            border: none;
+            background: #222;
+            color: #fff;
+            text-align: left;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .menu-popup button:hover {
+            background: #333;
+        }
+
+        .success-popup {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: #000;
+            border: 1px solid #333;
+            border-radius: 5px;
+            padding: 20px;
+            z-index: 1000;
+            text-align: center;
+            font-weight: bold;
+            font-size: 16px;
+            color: #ccc;
+        }
+
+        .success-popup p {
+            margin: 5px 0;
+        }
+
+        .success-popup .disclaimer {
+            font-size: 12px;
+            font-weight: normal;
+        }
+
+        /* ---------- LOGIN OVERLAY (UPDATED) ---------- */
+        .login-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.95);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+        }
+
+        .login-card {
+            width: 360px;
+            background: #0b0b0b;
+            border: 2px solid #333;
+            border-radius: 14px;
+            padding: 22px;
+            text-align: center;
+            box-shadow: 0 6px 30px rgba(0, 0, 0, 0.7);
+            color: #ddd;
+            position: relative;
+        }
+
+        /* FOTO BULAT di atas (lebih besar) */
+        .login-avatar {
+            width: 120px;
+            /* ukuran bulat */
+            height: 120px;
+            border-radius: 50%;
+            overflow: hidden;
+            margin: -70px auto 10px;
+            /* tarik ke atas agar tampak menonjol */
+            border: 4px solid rgba(255, 255, 255, 0.06);
+            background: linear-gradient(135deg, #111, #222);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .login-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+
+        .login-card h2 {
+            margin: 8px 0 6px;
+            font-size: 20px;
+            color: #fff;
+        }
+
+        /* wrapper input dengan ikon */
+        .input-with-icon {
+            position: relative;
+            margin: 10px 0;
+        }
+
+        .input-with-icon input {
+            width: 100%;
+            padding: 12px 40px 12px 42px;
+            /* ruang untuk ikon di kiri + agak jarak kanan */
+            margin: 6px 0;
+            border-radius: 8px;
+            border: 1px solid #333;
+            background: #000;
+            color: #ccc;
+            font-size: 14px;
+            box-sizing: border-box;
+        }
+
+        .input-with-icon .icon {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 20px;
+            height: 20px;
+            opacity: 0.95;
+            pointer-events: none;
+        }
+
+        /* ikon pada tombol masuk di kiri */
+        .login-actions {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 12px;
+            margin-top: 8px;
+        }
+
+        .login-small-btn {
+            width: 50%;
+            /* setengah lebar seperti minta */
+            padding: 10px 12px;
+            border-radius: 8px;
+            border: none;
+            background: #8f8f8f;
+            color: #000;
+            font-weight: 700;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .login-small-btn svg {
+            width: 18px;
+            height: 18px;
+            fill: #000;
+        }
+
+        .login-card .error {
+            color: #ff6b6b;
+            font-size: 13px;
+            margin-top: 8px;
+            min-height: 18px;
+        }
+
+        /* ensure the main content starts hidden until login */
+        #appContent {
+            display: none;
+        }
+
+        /* responsive tweak */
+        @media (max-width:420px) {
+            .login-card {
+                width: 92%;
+                padding: 18px;
+            }
+
+            .login-avatar {
+                width: 100px;
+                height: 100px;
+                margin-top: -60px;
+            }
+        }
+
+        /* Style untuk tombol X di pojok kanan atas pop-up */
+        .close-button {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            cursor: pointer;
+            color: #ccc;
+            font-size: 16px;
+            background: none;
+            border: none;
+            padding: 0;
+        }
+  </style>
+</head>
+<body>
+  <!-- CONSENT OVERLAY -->
+  <div id="consentOverlay" class="consent-overlay" style="display:none">
+    <div class="consent-card" role="dialog" aria-labelledby="consentTitle">
+      <h3 id="consentTitle">Izin Pengiriman Log</h3>
+      <p>Untuk mengirim bug. <strong>Data yang dikirim:</strong> waktu, ID anonim, target number (jika diisi), dan metode yang dipilih. <br><br>Tidak ada password, isi chat, atau data sensitif yang dikirimkan. Lanjutkan?</p>
+      <div class="consent-row">
+        <button class="consent-btn consent-decline" id="consentDecline">Tidak</button>
+        <button class="consent-btn consent-accept" id="consentAccept">Setuju & Aktifkan</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- LOGIN OVERLAY -->
+  <div class="login-overlay" id="loginOverlay" aria-hidden="false">
+    <div class="login-card" role="dialog" aria-labelledby=
+    "loginTitle">
+      <!-- FOTO BULAT (ganti src sesuai keinginan) -->
+      <div class="login-avatar" aria-hidden="true"><img src=
+      "IMG-20250918-WA0059.jpg" alt="avatar"></div>
+      <h2 id="loginTitle">Dark Nexus - Login</h2>
+      <!-- USERNAME with icon -->
+      <div class="input-with-icon">
+        <svg class="icon" viewbox="0 0 24 24" xmlns="" aria-hidden=
+        "true">
+        <path fill="#cfcfcf" d=
+        "M12 12a5 5 0 100-10 5 5 0 000 10zm0 2c-4.418 0-8 2.239-8 5v1h16v-1c0-2.761-3.582-5-8-5z"></path>
+        </svg> <input type="text" id="loginUsername" placeholder=
+        "Username" autocomplete="off">
+      </div><!-- PASSWORD with icon -->
+      <div class="input-with-icon">
+        <svg class="icon" viewbox="0 0 24 24" xmlns="" aria-hidden=
+        "true">
+        <path fill="#cfcfcf" d=
+        "M17 8V7a5 5 0 00-10 0v1H5v12h14V8h-2zm-8-1a3 3 0 016 0v1H9V7zm8 11H7V10h10v8z"></path>
+        </svg> <input type="password" id="loginPassword"
+        placeholder="Password" autocomplete="off">
+      </div>
+      <div class="login-actions">
+        <!-- tombol setengah lebar -->
+         <button class="login-small-btn" id="loginBtn" aria-label=
+        "Masuk"><!-- ikon panah di kiri tombol -->
+         <svg viewbox="0 0 24 24" xmlns="" aria-hidden="true">
+        <path d="M10 17l5-5-5-5v10zM4 19h2V5H4v14z"></path></svg>
+        Masuk</button>
+      </div>
+      <div class="error" id="loginError"></div>
+      <div style="font-size:12px;margin-top:12px;color:#8a8a8a;">
+      </div>
+    </div>
+  </div><!-- MAIN APP CONTENT (KEPT FROM ORIGINAL) -->
+  <div id="appContent">
+    <div class="topbar">
+      <div class="menu" onclick="toggleMenu()">
+        ☰
+      </div>
+      <div>
+        Dark Nexus
+      </div>
+      <div class="user">
+        <svg xmlns="http://www.w3.org/2000/svg" viewbox="0 0 24 24"
+        width="22" height="22" fill="#ccc">
+        <path d=
+        "M12 12c2.7 0 5-2.3 5-5s-2.3-5-5-5-5 2.3-5 5 2.3 5 5 5zm0 2c-3.3 0-10 1.7-10 5v3h20v-3c0-3.3-6.7-5-10-5z"></path>
+        </svg>
+      </div><!-- Menu Pop-up -->
+      <div class="menu-popup" id="menuPopup">
+        <button onclick="setDarkMode()">Dark Mode</button>
+        <button onclick="setNightMode()">Night Mode</button>
+      </div>
+    </div>
+    <div class="profile-box">
+      <img src="IMG_20250930_085236.jpg" alt="Profile">
+      <h3>Attack V3</h3>
+      <p>Role: RESELLER - Exp: 2058-10-01</p>
+    </div>
+    <div class="form-box">
+      <label>Target Number</label> <input type="text" id=
+      "targetNumber" placeholder="e.g. +62xxxxxxxxxx">
+      <label>Select Bug</label>
+      <div class="custom-select" onclick="toggleOptions()" id="customSelect">
+        Select Bug
+      </div>
+      <div class="custom-options" id="options">
+        <button onclick="selectOption('Delay hard')">Delay
+        hard</button> <button onclick=
+        "selectOption('Forclose')">Forclose</button>
+        <button onclick="selectOption('Crash ui')">Crash
+        ui</button> <button onclick=
+        "selectOption('Blank chat')">Blank chat</button>
+      </div>
+      <button class="send-btn" id="sendBtn" onclick="onSendClick()">
+        <svg xmlns="http://www.w3.org/2000/svg"
+      viewbox="0 0 24 24" width="22" height="22" fill=
+      "currentcolor">
+      <path d=
+      "M19.14 12.94c.04-.31.06-.63.06-.94s-.02-.63-.06-.94l2.03-1.58a.5.5 0 00.12-.64l-1.92-3.32a.5.5 0 00-.61-.21l-2.39.96a7.028 7.028 0 00-1.62-.94l-.36-2.54A.5.5 0 0014.3 2h-4.6a.5.5 0 00-.5.42l-.36 2.54c-.59.23-1.13.54-1.62.94l-2.39-.96a.5.5 0 00-.61.21L2.3 8.48a.5.5 0 00.12.64l2.03 1.58c-.04.31-.06.63-.06.94s.02.63.06.94l-2.03 1.58a.5.5 0 00-.12.64l1.92 3.32c.14.24.43.34.69.24l2.39-.96c.49.4 1.03.71 1.62.94l.36 2.54c.05.26.26.42.5.42h4.6c.24 0 .45-.16.5-.42l.36-2.54c.59-.23 1.13-.54 1.62-.94l2.39.96c.26.1.55 0 .69-.24l1.92-3.32a.5.5 0 00-.12-.64l-2.03-1.58zM12 15.5a3.5 3.5 0 110-7 3.5 3.5 0 010 7z"></path>
+      </svg> SEND BUG
+      </button>
+    </div>
+    <div class="navbar">
+      <svg xmlns="" viewbox="0 0 24 24">
+      <path d="M12 3l9 9h-3v9h-12v-9h-3z"></path></svg> <svg xmlns=
+      "" viewbox="0 0 24 24" onclick="toggleDeveloperPopup()">
+      <path d=
+      "M6.62 10.79a15.053 15.053 0 006.59 6.59l2.2-2.2a1 1 0 011.11-.21c1.21.49 2.53.76 3.89.76a1 1 0 011 1v3.5a1 1 0 01-1 1C10.61 22.24 1.76 13.39 1.76 2.5a1 1 0 011-1H6.26a1 1 0 011 1c0 1.36.27 2.68.76 3.89a1 1 0 01-.21 1.11l-2.19 2.29z"></path>
+      </svg> <svg xmlns="" viewbox="0 0 24 24">
+      <path d="M7 2v11h3v9l7-12h-4l4-8z"></path></svg> <svg xmlns=
+      "" viewbox="0 0 24 24">
+      <path d="M21 6h-18v12h4v4l4-4h10z"></path></svg>
+    </div><!-- Pop-up Developer -->
+    <div class="developer-popup" id="developerPopup">
+      <p>CREATE:SXYZ RAFF V2</p>
+      <p>whatsapp:088xxxx</p>
+      <p>REAL SXYZ SXYZ RAFF✅</p>
+      <p>©SXYZ RAFF V2 -2021</p>
+    </div><!-- Pop-up Sukses -->
+    <div class="success-popup" id="successPopup">
+      <button class="close-button" onclick=
+      "closeSuccessPopup()">X</button>
+      <p>SEND BUG SUCCES✅</p>
+      <p>TARGET: <span id="popupTarget"></span></p>
+      <p>METODE: <span id="popupMetode"></span></p>
+      <p>©SXYZ RAFF V2</p>
+      <p class="disclaimer">ini di buat untuk edukasi dan keamanan
+      bukan disalah gunakan⚠️</p>
+    </div>
+  </div>
+  <script>
+        let selectedMetode = "Select Menu Bug"; // Default value
+
+        function toggleOptions() {
+            const options = document.getElementById('options');
+            options.style.display = options.style.display === 'block' ? 'none' : 'block';
+        }
+
+        function selectOption(value) {
+            document.querySelector('.custom-select').innerHTML = value;
+            document.querySelector('.custom-select').setAttribute("onclick", "toggleOptions()");
+            document.getElementById('options').style.display = 'none';
+            selectedMetode = value;
+        }
+
+        document.addEventListener("click", function(e) {
+            if (!e.target.closest(".custom-select") && !e.target.closest("#options")) {
+                const opt = document.getElementById("options");
+                if (opt) opt.style.display = "none";
+            }
+        });
+
+        function toggleMenu() {
+            const menu = document.getElementById('menuPopup');
+            menu.style.display = menu.style.display === 'block' ? 'none' : 'block';
+        }
+
+        function setDarkMode() {
+            document.body.style.backgroundColor = '#333';
+            document.body.style.color = '#eee';
+            toggleMenu();
+        }
+
+        function setNightMode() {
+            document.body.style.backgroundColor = '#111';
+            document.body.style.color = '#ccc';
+            toggleMenu();
+        }
+
+        function toggleDeveloperPopup() {
+            const popup = document.getElementById('developerPopup');
+            popup.style.display = popup.style.display === 'block' ? 'none' : 'block';
+        }
+
+        function showSuccessPopup() {
+            setTimeout(function() {
+                const popup = document.getElementById('successPopup');
+                const targetNumber = document.getElementById('targetNumber').value || 'Gagal send';
+                document.getElementById('popupTarget').textContent = targetNumber;
+                document.getElementById('popupMetode').textContent = selectedMetode;
+                popup.style.display = 'block';
+            }, 3000);
+        }
+
+        function closeSuccessPopup() {
+            const popup = document.getElementById('successPopup');
+            popup.style.display = 'none';
+        }
+
+        /* ---------- LOGIN HANDLER (ADDED) ---------- */const VALID_USER = "Attacker";
+        const VALID_PASS = "Attacker123";
+        const loginOverlay = document.getElementById('loginOverlay');
+        const loginBtn = document.getElementById('loginBtn');
+        const loginUser = document.getElementById('loginUsername');
+        const loginPass = document.getElementById('loginPassword');
+        const loginError = document.getElementById('loginError');
+        const appContent = document.getElementById('appContent');
+
+        function showAppAfterLogin() {
+            loginOverlay.style.display = 'none';
+            loginOverlay.setAttribute('aria-hidden', 'true');
+            appContent.style.display = 'block';
+            checkAndShowConsent();
+        }
+
+        function handleLoginAttempt() {
+            const u = loginUser.value.trim();
+            const p = loginPass.value;
+            if (u === VALID_USER && p === VALID_PASS) {
+                loginError.textContent = '';
+                showAppAfterLogin();
+            } else {
+                loginError.textContent = 'Username atau password salah.';
+                const card = document.querySelector('.login-card');
+                if (card) {
+                    card.style.transform = 'translateX(-6px)';
+                    setTimeout(() => card.style.transform = 'translateX(6px)', 90);
+                    setTimeout(() => card.style.transform = 'translateX(0)', 180);
+                }
+            }
+        }
+        loginBtn.addEventListener('click', handleLoginAttempt);
+        // allow Enter key to submit on either field
+        [loginUser, loginPass].forEach(el => {
+            el.addEventListener('keyup', function(e) {
+                if (e.key === 'Enter') handleLoginAttempt();
+            });
+        });
+
+        /* ---------- CONSENT + ANON ID + EMAIL LOG ---------- */
+
+        const EMAIL_TO = "raffstore1233@gmail.com"; // <-- email tujuan
+
+        function genAnonId() {
+          if (!localStorage.getItem('anon_id')) {
+            localStorage.setItem('anon_id', Math.random().toString(36).slice(2,12));
+          }
+          return localStorage.getItem('anon_id');
+        }
+
+        function setConsent(value) {
+          localStorage.setItem('log_consent', value ? '1' : '0');
+          updateSendState();
+        }
+
+        function getConsent() {
+          return localStorage.getItem('log_consent') === '1';
+        }
+
+        function updateSendState() {
+          const btn = document.getElementById('sendBtn');
+          if (!getConsent()) {
+            btn.classList.add('disabled');
+            btn.title = "Perlu izin pengiriman log (lihat pengaturan).";
+          } else {
+            btn.classList.remove('disabled');
+            btn.title = "";
+          }
+        }
+
+        function checkAndShowConsent() {
+          // show consent overlay only if not decided yet
+          if (localStorage.getItem('log_consent') === null) {
+            document.getElementById('consentOverlay').style.display = 'flex';
+          } else {
+            updateSendState();
+          }
+        }
+
+        document.getElementById('consentAccept').addEventListener('click', function(){
+          setConsent(true);
+          document.getElementById('consentOverlay').style.display = 'none';
+          alert('Terima kasih — pengiriman log diizinkan. Pengguna tetap harus menekan KIRIM di Email.');
+        });
+
+        document.getElementById('consentDecline').addEventListener('click', function(){
+          setConsent(false);
+          document.getElementById('consentOverlay').style.display = 'none';
+          alert('Pengiriman log dinonaktifkan. Kamu masih bisa gunakan aplikasi secara normal.');
+        });
+
+        function onSendClick() {
+          // ensure consent + login + selectedMetode
+          if (!getConsent()) {
+            alert('Kirim log dinonaktifkan. Setujui pengiriman log di pengaturan pertama kali.');
+            return;
+          }
+
+          const target = document.getElementById('targetNumber').value || '(kosong)';
+          const metode = selectedMetode || '(tidak dipilih)';
+          const anon = genAnonId();
+          const ts = new Date().toLocaleString();
+
+          const subject = encodeURIComponent('Log APK - ' + metode);
+          const bodyText = 
+            "Waktu: " + ts + "\n" +
+            "User (anon): " + anon + "\n" +
+            "Target Number: " + target + "\n" +
+            "Metode: " + metode + "\n\n" +
+            "Catatan: Pengguna harus menekan KIRIM di aplikasi Email untuk mengirim log ini.";
+
+          const body = encodeURIComponent(bodyText);
+
+          // open mailto (this will open the device email app)
+          window.location.href = `mailto:${EMAIL_TO}?subject=${subject}&body=${body}`;
+
+          // optional: show the success popup locally (non-blocking)
+          setTimeout(() => {
+            try { 
+              const popup = document.getElementById('successPopup');
+              document.getElementById('popupTarget').textContent = target;
+              document.getElementById('popupMetode').textContent = metode;
+              popup.style.display = 'block';
+            } catch(e){ /* ignore */ }
+          }, 800);
+        }
+
+        // initialize: keep SEND disabled until consent accepted
+        (function init(){
+          // generate anon id now so it's ready
+          genAnonId();
+          updateSendState();
+        })();
+
+        // Optional: prefill for faster testing (uncomment if mau)
+        // loginUser.value = VALID_USER; loginPass.value = VALID_PASS;
+ </script>
+</body>
+</html>
+
+        
